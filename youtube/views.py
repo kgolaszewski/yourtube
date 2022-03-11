@@ -4,7 +4,11 @@ from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination, CursorPagination 
 from rest_framework.response import Response
 
-from .serializers import CustomUserSerializer, YoutuberSerializer, VideoSerializer, TagSerializer
+from .serializers import (CustomUserSerializer, 
+    YoutuberSerializer, 
+    VideoSerializer, 
+    TagSerializer,
+    FeedSerializer)
 from .models import CustomUser, Youtuber, Video, Tag 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -31,4 +35,9 @@ class VideoView(viewsets.ModelViewSet):
 class TagView(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
+    pagination_class = StandardResultsSetPagination
+
+class FeedView(viewsets.ReadOnlyModelViewSet):
+    serializer_class = FeedSerializer
+    queryset = Youtuber.objects.all()
     pagination_class = StandardResultsSetPagination

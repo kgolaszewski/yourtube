@@ -21,3 +21,13 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ('category', 'youtuber')
+
+class FeedSerializer(serializers.BaseSerializer):
+    def to_representation(self, instance):
+        latest = instance.videos.first()
+        return {
+            'name': instance.name,
+            'channel': instance.channel,
+            'title': latest.title,
+            'url': f"https://youtube.com/watch?v={latest.video_id}",
+        }

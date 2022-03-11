@@ -22,6 +22,9 @@ class Video(models.Model):
     date     = models.DateField()
     youtuber = models.ForeignKey(Youtuber, on_delete=models.CASCADE, related_name="videos")
 
+    class Meta:
+        ordering = ['-date', 'title']
+
 class Tag(models.Model):
     category = models.CharField(max_length=128)
     youtuber = models.ForeignKey(Youtuber, on_delete=models.CASCADE, related_name="tags")
