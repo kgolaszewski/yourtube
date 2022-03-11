@@ -10,7 +10,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class YoutuberSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Youtuber 
-        fields = ('username', 'name', 'channel')
+        fields = ('username', 'name', 'channel', 'last_upload')
 
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,10 +24,11 @@ class TagSerializer(serializers.ModelSerializer):
 
 class FeedSerializer(serializers.BaseSerializer):
     def to_representation(self, instance):
-        latest = instance.videos.first()
         return {
-            'name': instance.name,
-            'channel': instance.channel,
-            'title': latest.title,
-            'url': f"https://youtube.com/watch?v={latest.video_id}",
+            'name': instance.youtuber.name,
+            'channel': instance.youtuber.channel,
+            'title': instance.title,
+            'url': f"https://youtube.com/watch?v={instance.video_id}",
+            'id': instance.video_id,
+            'date': instance.date,
         }

@@ -9,9 +9,10 @@ class CustomUser(AbstractUser):
         return self.username
 
 class Youtuber(models.Model):
-    username   = models.CharField(max_length=128, primary_key=True)
-    name       = models.CharField(max_length=128)
-    channel    = models.CharField(max_length=128)
+    username    = models.CharField(max_length=128, primary_key=True)
+    name        = models.CharField(max_length=128)
+    channel     = models.CharField(max_length=128)
+    last_upload = models.CharField(max_length=128, null=True)
 
     def __str__(self):
         return self.name

@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.db.models import Q, F
 
 from rest_framework import viewsets 
 from rest_framework.pagination import PageNumberPagination, CursorPagination 
@@ -41,3 +42,26 @@ class FeedView(viewsets.ReadOnlyModelViewSet):
     serializer_class = FeedSerializer
     queryset = Youtuber.objects.all()
     pagination_class = StandardResultsSetPagination
+
+class FeedView(viewsets.ReadOnlyModelViewSet):
+    serializer_class = FeedSerializer
+    queryset = Video.objects.filter(video_id=F('youtuber__last_upload')).order_by('-date')
+    pagination_class = StandardResultsSetPagination
+
+
+# class FeedView(viewsets.ReadOnlyModelViewSet):
+
+#     def list(self, request):
+#         queryset = Youtuber.objects.all()
+#         serializer_class = FeedSerializer
+#         pagination_class = StandardResultsSetPagination
+#         return Response(serializer.data)
+
+#     def retrieve(self, request, username=None):
+#         queryset = Youtuber.objects.all()
+#         youtuber = get_object_or_404(queryset, username=username)
+#         serializer_class = FeedSerializer
+#         pagination_class = StandardResultsSetPagination
+#         return Response(serializer.data)
+
+
