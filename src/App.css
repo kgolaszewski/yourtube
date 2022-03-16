@@ -6,5 +6,55 @@
 }
 
 .row {
-  width: 1440px;
+  max-width: 1440px;
+}
+
+.thumbnail {
+  border-radius: 50%;
+}
+
+a {
+  color: white !important;
+}
+a:hover {
+  opacity: 0.5;
+}
+
+.channelname {
+  font-size: 10px;
+  text-decoration: underline;   
+}
+
+.videotitle {
+  font-size: 18px;
+  font-weight: 550;
+  letter-spacing: 0.5px;
+  /* font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif */
+}
+
+.videothumbnail {
+  position: relative;
+  color: white;
+}
+
+.videoduration {
+  position: absolute;
+  padding: 0.5px 6px 0.5px 5px;
+  font-size: 13px;
+  font-weight: 600;
+  top: 59px;
+  right: 5px;
+  background-color: black;
+}
+
+.videodate {
+  font-size: 10px;
+}
+
+hr {
+  background-color: #dedede;
+}
+
+.leftlean {
+  text-align: left;
 }
