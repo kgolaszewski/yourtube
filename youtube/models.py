@@ -27,6 +27,12 @@ class Video(models.Model):
     class Meta:
         ordering = ['-date', 'title']
 
+    def __str__(self):
+        return f"{self.title} (@{self.youtuber})"
+
 class Tag(models.Model):
     category = models.CharField(max_length=128)
     youtuber = models.ForeignKey(Youtuber, on_delete=models.CASCADE, related_name="tags")
+
+    def __str__(self):
+        return f"{self.youtuber}:{self.category}"

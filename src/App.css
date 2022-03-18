@@ -29,7 +29,6 @@ a:hover {
   font-size: 18px;
   font-weight: 550;
   letter-spacing: 0.5px;
-  /* font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif */
 }
 
 .videothumbnail {
@@ -55,6 +54,11 @@ hr {
   background-color: #dedede;
 }
 
-.leftlean {
+.leftalign {
   text-align: left;
+}
+
+h1 {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-size: 44px !important;
 }

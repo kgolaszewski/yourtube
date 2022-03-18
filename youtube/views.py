@@ -40,13 +40,21 @@ class TagView(viewsets.ModelViewSet):
 
 class FeedView(viewsets.ReadOnlyModelViewSet):
     serializer_class = FeedSerializer
-    queryset = Youtuber.objects.all()
-    pagination_class = StandardResultsSetPagination
-
-class FeedView(viewsets.ReadOnlyModelViewSet):
-    serializer_class = FeedSerializer
     queryset = Video.objects.filter(video_id=F('youtuber__last_upload')).order_by('-date')
     pagination_class = StandardResultsSetPagination
+
+    def list(self, request):
+        queryset = Video.objects.filter(video_id=F('youtuber__last_upload')).order_by('-date')
+        serializer = FeedSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = Video.objects.filter(youtuber__tags__category=pk).filter(video_id=F('youtuber__last_upload')).order_by('-date')
+        serializer = FeedSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+
 
 
 # class FeedView(viewsets.ReadOnlyModelViewSet):

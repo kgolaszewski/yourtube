@@ -7,19 +7,26 @@ const img_folder = process.env.PUBLIC_URL
 function App() {
   const [init, setInit] = useState(false)
   const [youtubers, setYoutubers] = useState()
+  const [category, setCategory] = useState("miatime")
 
   useEffect(() => {
     if (init === false) {
       console.log('hello')
       axios
-        .get(`http://localhost:8000/api/feed/`)
-        .then((res) => { setYoutubers(res.data.results); console.log(res.data.results); })
+        .get(`http://localhost:8000/api/feed/miatime`)
+        .then((res) => { setYoutubers(res.data); console.log("axios", res.data); })
         .then(() => setInit(true))
     }
     else {
       console.log("youtubers", youtubers)
     }
   }, [init])
+
+  useEffect(() => {
+    axios
+        .get(`http://localhost:8000/api/feed/${category}`)
+        .then((res) => { setYoutubers(res.data); console.log("axios", res.data); })
+  }, [category])
 
   return (
     <div>
@@ -35,6 +42,20 @@ function App() {
         MiiTube
       </h1>
       <hr className="mb-5" />
+      <div className="offset-1 col-10 buttonrow">
+        <button 
+          className="btn btn-primary"
+          onClick={() => setCategory("")}
+        >
+          All
+        </button>
+        <button 
+          className="btn btn-info"
+          onClick={() => setCategory("miatime")}
+        >
+          Miatime
+        </button>
+      </div>
       <div className="offset-1 col-10 pb-5">
         {/* <div className="row"> */}
 
@@ -65,7 +86,7 @@ function App() {
             </a>
             </div>
 
-            <div className="col-6 mt-4 leftlean">
+            <div className="col-6 mt-4 leftalign">
               <a href={`${e.url}`} className="videotitle">
                 {e.title}
               </a>

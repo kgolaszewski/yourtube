@@ -33,4 +33,5 @@ class FeedSerializer(serializers.BaseSerializer):
             'id': instance.video_id,
             'length': f"{instance.length.days+instance.length.seconds//3600 if instance.length.days+instance.length.seconds//3600 else ''}{':' if instance.length.days+instance.length.seconds//3600 > 0 else ''}{'0' if (instance.length.days+instance.length.seconds//3600 > 0) and ((instance.length.seconds//60)%60 < 10) else ''}{(instance.length.seconds//60)%60}:{instance.length.seconds%60:02}",
             'date': instance.date,
+            # 'tags': instance.youtuber.tags,
         }
