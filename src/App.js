@@ -4,6 +4,18 @@ import axios from 'axios';
 
 const img_folder = process.env.PUBLIC_URL 
 
+function TagFilter(props) {
+  let buttontext = props.text ? props.text : props.tag[0].toUpperCase()+props.tag.slice(1)
+  return (
+    <button 
+          className="btn btn-dark btn-tag"
+          onClick={() => props.setCategory(props.tag)}
+        >
+          {buttontext}
+        </button>
+  )
+}
+
 function App() {
   const [init, setInit] = useState(false)
   const [youtubers, setYoutubers] = useState()
@@ -42,19 +54,13 @@ function App() {
         MiiTube
       </h1>
       <hr className="mb-5" />
-      <div className="offset-1 col-10 buttonrow">
-        <button 
-          className="btn btn-primary"
-          onClick={() => setCategory("")}
-        >
-          All
-        </button>
-        <button 
-          className="btn btn-info"
-          onClick={() => setCategory("miatime")}
-        >
-          Miatime
-        </button>
+      <div className="offset-1 col-10 buttonrow mb-5">
+        <TagFilter tag="" text={"All"}  setCategory={setCategory} />
+        <TagFilter tag="miatime" setCategory={setCategory} />
+        <TagFilter tag="essay" setCategory={setCategory} />
+        <TagFilter tag="gaming" setCategory={setCategory} />
+        <TagFilter tag="ssbm" text="SSBM" setCategory={setCategory} />
+        <TagFilter tag="chess" setCategory={setCategory} />
       </div>
       <div className="offset-1 col-10 pb-5">
         {/* <div className="row"> */}

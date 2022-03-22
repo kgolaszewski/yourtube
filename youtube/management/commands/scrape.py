@@ -13,7 +13,7 @@ from time import sleep
 
 
 
-def scrape():
+def scrape(updating_videos=False):
 
     options = FirefoxOptions()
     options.add_argument("--headless")
@@ -21,7 +21,6 @@ def scrape():
 
     # Wait up to 60 seconds, but continue if you find the element
     driver.implicitly_wait(60)
-
 
     youtubers = [x for x in Youtuber.objects.all()]
 
@@ -35,56 +34,60 @@ def scrape():
             result["video_id"] =  href.split("/shorts/")[1] if "/shorts/" in href else href.split("=")[1]
 
             # if youtuber.last_upload != result["video_id"]:
-            if Video.objects.filter(video_id=result["video_id"]).exists():
+            if updating_videos:
+                if Video.objects.filter(video_id=result["video_id"]).exists():
+                    current = Video.objects.get(video_id=result["video_id"])
 
-                current = Video.objects.get(video_id=result["video_id"])
+                    result["title"]    = latest.get_attribute("title")
+                    result["youtuber"] = youtuber.username
 
-                result["title"]    = latest.get_attribute("title")
-                result["youtuber"] = youtuber.username
+                    driver.get(f"https://youtube.com/watch?v={result['video_id']}")
+                    datetext = driver.find_element(By.ID, "info-strings").text
+                    result["date"] = datetime.strptime(datetext.split("Premiered ")[-1], "%b %d, %Y")
+                    lengthtext = driver.find_element(By.CLASS_NAME, "ytp-time-duration").text
 
-                driver.get(f"https://youtube.com/watch?v={result['video_id']}")
-                datetext = driver.find_element(By.ID, "info-strings").text
-                result["date"] = datetime.strptime(datetext.split("Premiered ")[-1], "%b %d, %Y")
-                lengthtext = driver.find_element(By.CLASS_NAME, "ytp-time-duration").text
+                    video_len = int(driver.execute_script("return document.getElementById('movie_player').getDuration()"))
+                    result["length"] = timedelta(seconds=int(video_len))
 
-                video_len = int(driver.execute_script("return document.getElementById('movie_player').getDuration()"))
-                result["length"] = timedelta(seconds=int(video_len))
+                    current = Video(
+                            video_id=result["video_id"],
+                            title=result["title"],
+                            date=result["date"],
+                            length=result["length"],
+                            youtuber=Youtuber.objects.get(username=result["youtuber"]),
+                    )
+                    current.save()
+                    youtuber.last_upload = result["video_id"]
+                    youtuber.save()
 
-                current = Video(
-                        video_id=result["video_id"],
-                        title=result["title"],
-                        date=result["date"],
-                        length=result["length"],
-                        youtuber=Youtuber.objects.get(username=result["youtuber"]),
-                )
-                current.save()
-                youtuber.last_upload = result["video_id"]
-                youtuber.save()
+                    print(f"@{youtuber.username}: {result['title']} [{result['length']}] ({result['date']})")
+            else:
+                if youtuber.last_upload != result["video_id"]:
 
-                print(f"@{youtuber.username}: {result['title']} [{result['length']}] ({result['date']})")
+                    result["title"]    = latest.get_attribute("title")
+                    result["youtuber"] = youtuber.username
 
-            # if Video.objects.filter(video_id=result["video_id"]).exists():
+                    driver.get(f"https://youtube.com/watch?v={result['video_id']}")
+                    datetext = driver.find_element(By.ID, "info-strings").text
+                    result["date"] = datetime.strptime(datetext.split("Premiered ")[-1], "%b %d, %Y")
+                    lengthtext = driver.find_element(By.CLASS_NAME, "ytp-time-duration").text
 
-            #     current = Video.objects.get(video_id=result["video_id"])
+                    video_len = int(driver.execute_script("return document.getElementById('movie_player').getDuration()"))
+                    result["length"] = timedelta(seconds=int(video_len))
 
-            #     result["title"]    = latest.get_attribute("title")
-            #     result["youtuber"] = youtuber.username
+                    new = Video(
+                            video_id=result["video_id"],
+                            title=result["title"],
+                            date=result["date"],
+                            length=result["length"],
+                            youtuber=Youtuber.objects.get(username=result["youtuber"]),
+                    )
+                    new.save()
+                    youtuber.last_upload = result["video_id"]
+                    youtuber.save()
 
-            #     driver.get(f"https://youtube.com/watch?v={result['video_id']}")
-                # datetext = driver.find_element(By.ID, "info-strings").text
-                # result["date"] = datetime.strptime(datetext.split("Premiered ")[-1], "%b %d, %Y")
+                    print(f"@{youtuber.username}: {result['title']} [{result['length']}] ({result['date']})")
 
-            #     current = Video(
-            #             video_id=result["video_id"],
-            #             title=result["title"],
-            #             date=result["date"],
-            #             youtuber=Youtuber.objects.get(username=result["youtuber"]),
-            #     )
-            #     current.save()
-
-                # print(youtuber.name, result["title"], result["date"])
-            # else:
-            #     print("no such video")
         except Exception as e:
             print(f"ERROR: {e} ({youtuber})")
 
