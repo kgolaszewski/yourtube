@@ -50,6 +50,11 @@ INSTALLED_APPS = [
     'youtube',
     'rest_framework',
     'corsheaders',
+    'django_crontab',
+]
+
+CRONJOBS = [
+    ('55/60 15 * * *', 'django.core.management.call_command', ['scrape'])
 ]
 
 AUTH_USER_MODEL = 'youtube.CustomUser'
