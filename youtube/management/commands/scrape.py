@@ -23,6 +23,7 @@ def scrape(updating_videos=False):
     driver.implicitly_wait(60)
 
     youtubers = [x for x in Youtuber.objects.all()]
+    youtubers = [x for x in Youtuber.objects.all() if x.username == "ssethtzeentach"]
 
     for youtuber in youtubers:
         try:
@@ -72,7 +73,16 @@ def scrape(updating_videos=False):
 
                     datetext = driver.find_element(By.ID, "info-strings").text
                     if "Premiered" in datetext:
-                        result["date"] = datetime.strptime(datetext.split("Premiered ")[-1], "%b %d, %Y")
+                        print("Premiere conditional activated")
+                        if "ago" in datetext:
+                            timeunits = {"second": 1, "minute": 60, "hour": 3600, "day": 24*3600}
+                            tdelta = 0
+                            for t in timeunits:
+                                if t in datetext:
+                                    tdelta += timeunits[t]*int(datetext.split("Premiered ")[-1].split(f" {t}")[0])
+                            result["date"] = (datetime.now() - timedelta(seconds=tdelta)).date()
+                        else:
+                            result["date"] = datetime.strptime(datetext.split("Premiered ")[-1], "%b %d, %Y")
                     elif "Streamed" in datetext:
                         if "on" in datetext:
                             result["date"] = datetime.strptime(datetext.split("on ")[-1], "%b %d, %Y")
@@ -84,7 +94,15 @@ def scrape(updating_videos=False):
                                     tdelta += timeunits[t]*int(datetext.split("live ")[-1].split(f" {t}")[0])
                             result["date"] = (datetime.now() - timedelta(seconds=tdelta)).date()
                     else:
-                        result["date"] = datetime.strptime(datetext, "%b %d, %Y")
+                        if "ago" in datetext:
+                            timeunits = {"second": 1, "minute": 60, "hour": 3600, "day": 24*3600}
+                            tdelta = 0
+                            for t in timeunits:
+                                if t in datetext:
+                                    tdelta += timeunits[t]*int(datetext.split("live ")[-1].split(f" {t}")[0])
+                            result["date"] = (datetime.now() - timedelta(seconds=tdelta)).date()
+                        else:
+                            result["date"] = datetime.strptime(datetext, "%b %d, %Y")
 
                     lengthtext = driver.find_element(By.CLASS_NAME, "ytp-time-duration").text
                     video_len = int(driver.execute_script(
