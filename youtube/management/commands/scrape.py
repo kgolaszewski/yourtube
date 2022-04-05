@@ -23,7 +23,6 @@ def scrape(updating_videos=False):
     driver.implicitly_wait(60)
 
     youtubers = [x for x in Youtuber.objects.all()]
-    youtubers = [x for x in Youtuber.objects.all() if x.username == "ssethtzeentach"]
 
     for youtuber in youtubers:
         try:
