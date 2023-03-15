@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 
 from time import sleep
 import pytz
+import re
 
 
 
@@ -86,37 +87,21 @@ def scrape(updating_videos=False, headless=True):
 
                     # datetext = driver.find_element(By.ID, "info").text
 
-                    if "Premiered" in datetext:
-                        print("Premiere conditional activated")
-                        if "ago" in datetext:
+                    if "ago" in datetext:
                             timeunits = {"second": 1, "minute": 60, "hour": 3600, "day": 24*3600}
                             tdelta = 0
                             for t in timeunits:
                                 if t in datetext:
-                                    tdelta += timeunits[t]*int(datetext.split("Premiered ")[-1].split(f" {t}")[0])
-                            result["date"] = (datetime.now() - timedelta(seconds=tdelta)).date()
-                        else:
-                            result["date"] = datetime.strptime(datetext.split("Premiered ")[-1], "%b %d, %Y")
-                    elif "Streamed" in datetext:
-                        if "on" in datetext:
-                            result["date"] = datetime.strptime(datetext.split("on ")[-1], "%b %d, %Y")
-                        else:
-                            timeunits = {"second": 1, "minute": 60, "hour": 3600, "day": 24*3600}
-                            tdelta = 0
-                            for t in timeunits:
-                                if t in datetext:
-                                    tdelta += timeunits[t]*int(datetext.split("live ")[-1].split(f" {t}")[0])
-                            result["date"] = (datetime.now() - timedelta(seconds=tdelta)).date()
+                                    if "Premiered" in datetext:
+                                        print("Premiere conditional activated")
+                                        tdelta += timeunits[t]*int(datetext.split("Premiered ")[-1].split(f" {t}")[0]) 
+                                    else:
+                                        tdelta += timeunits[t]*int(datetext.split("live ")[-1].split(f" {t}")[0])
+                            result["date"] = (datetime.now() - timedelta(seconds=tdelta)).date()     
                     else:
-                        if "ago" in datetext:
-                            timeunits = {"second": 1, "minute": 60, "hour": 3600, "day": 24*3600}
-                            tdelta = 0
-                            for t in timeunits:
-                                if t in datetext:
-                                    tdelta += timeunits[t]*int(datetext.split("live ")[-1].split(f" {t}")[0])
-                            result["date"] = (datetime.now() - timedelta(seconds=tdelta)).date()
-                        else:
-                            result["date"] = datetime.strptime(datetext, "%b %d, %Y")
+                        date_regex = "[A-Z][a-z]{2} \d{1,2}, 20\d{2}"
+                        formatted_datetext = re.search(date_regex, datetext).group()
+                        result["date"] = datetime.strptime(formatted_datetext, "%b %d, %Y")
 
                     lengthtext = driver.find_element(By.CLASS_NAME, "ytp-time-duration").text
                     video_len = int(driver.execute_script(
