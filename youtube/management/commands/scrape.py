@@ -10,30 +10,41 @@ from youtube.models import Youtuber, Video
 from datetime import datetime, timedelta
 
 from time import sleep
+import pytz
 
 
 
-def scrape(updating_videos=False):
+def scrape(updating_videos=False, headless=True):
 
-    options = FirefoxOptions()
-    options.add_argument("--headless")
-    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
+    if headless: 
+        options = FirefoxOptions()
+        options.add_argument("--headless")
+        driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
+    else:
+        driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
 
     # Wait up to 60 seconds, but continue if you find the element
     driver.implicitly_wait(60)
 
     youtubers = [x for x in Youtuber.objects.all()]
+    # youtubers = [Youtuber.objects.get(username="chessbrah")]
+
+    est = pytz.timezone('America/New_York')
+
+    print(f"\n--- Updated at: {datetime.now(est).strftime('%Y-%m-%d %H:%M')} ---")
 
     for youtuber in youtubers:
         try:
             driver.get(youtuber.channel)
-            latest = driver.find_element(By.ID, "video-title")
+            latest = driver.find_element(By.ID, "video-title-link")
 
             result = {}
             href = latest.get_attribute("href")
+
             result["video_id"] =  href.split("/shorts/")[1] if "/shorts/" in href else href.split("=")[1]
 
-            print(result["video_id"], latest.get_attribute("title"))
+            # print(result["video_id"], latest.get_attribute("title"))
+            print(f"@{youtuber.username:18} {latest.get_attribute('title')}")
 
             if updating_videos:
                 if Video.objects.filter(video_id=result["video_id"]).exists():
@@ -70,7 +81,11 @@ def scrape(updating_videos=False):
 
                     driver.get(f"https://youtube.com/watch?v={result['video_id']}")
 
-                    datetext = driver.find_element(By.ID, "info-strings").text
+                    driver.find_element(By.ID, "description-inner").click()
+                    datetext = driver.find_element(By.ID, "info-container").text.split("views  ")[1].split("#")[0].rstrip()
+
+                    # datetext = driver.find_element(By.ID, "info").text
+
                     if "Premiered" in datetext:
                         print("Premiere conditional activated")
                         if "ago" in datetext:
@@ -126,12 +141,13 @@ def scrape(updating_videos=False):
         except Exception as e:
             print(f"ERROR: {e} ({youtuber})")
 
-    driver.quit()
+    if headless: 
+        driver.quit()
 
 
 class Command(BaseCommand):
     help = "Check youtube.com for latest upload from each Youtuber"    
     # define logic of command
     def handle(self, *args, **options):
-        scrape()
-        self.stdout.write( 'job complete' )
+        scrape(headless=True)
+        self.stdout.write( '\n' )
