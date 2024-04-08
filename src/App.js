@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const img_folder = process.env.PUBLIC_URL 
 
-const BACKEND_URL = `http://localhost:7000`
+import { BACKEND_URL } from './utils/config'
 
 function TagFilter(props) {
   let buttontext = props.text ? props.text : props.tag[0].toUpperCase()+props.tag.slice(1)
