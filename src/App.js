@@ -4,6 +4,8 @@ import axios from 'axios';
 
 const img_folder = process.env.PUBLIC_URL 
 
+const BACKEND_URL = `http://localhost:7000`
+
 function TagFilter(props) {
   let buttontext = props.text ? props.text : props.tag[0].toUpperCase()+props.tag.slice(1)
   return (
@@ -23,9 +25,8 @@ function App() {
 
   useEffect(() => {
     if (init === false) {
-      console.log('hello')
       axios
-        .get(`http://localhost:8000/api/feed/miatime`)
+        .get(`${BACKEND_URL}/api/feed/miatime`)
         .then((res) => { setYoutubers(res.data); console.log("axios", res.data); })
         .then(() => setInit(true))
     }
@@ -36,7 +37,7 @@ function App() {
 
   useEffect(() => {
     axios
-        .get(`http://localhost:8000/api/feed/${category}`)
+        .get(`${BACKEND_URL}/api/feed/${category}`)
         .then((res) => { setYoutubers(res.data); console.log("axios", res.data); })
   }, [category])
 
@@ -51,7 +52,7 @@ function App() {
           width="200px"
           src={`${img_folder}/favicon2.ico`} 
         />
-        MiiTube
+        WeTube
       </h1>
       <hr className="mb-5" />
       <div className="offset-1 col-10 buttonrow mb-5">
