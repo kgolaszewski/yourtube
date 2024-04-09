@@ -1,3 +1,4 @@
+from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -54,3 +55,31 @@ class FeedSerializer(serializers.BaseSerializer):
             'date': instance.date,
             # 'tags': instance.youtuber.tags,
         }
+    
+class UserRegisterSerializer(ModelSerializer):
+  confirmation = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+
+  class Meta:
+    model = CustomUser
+    fields = ('email', 'username', 'password', 'confirmation')
+    extra_kwargs = {
+      'password': {'write_only': True}
+    }
+
+  def save(self):
+    password     = self.validated_data['password']
+    confirmation = self.validated_data['confirmation']
+
+    if password != confirmation:
+      raise serializers.ValidationError({"password": "Passwords do not match."})
+
+    user = CustomUser(
+      email=self.validated_data['email'],
+      username=self.validated_data['username'],
+    )
+
+    user.set_password(password)
+
+    user.save()
+
+    return user

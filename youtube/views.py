@@ -5,11 +5,16 @@ from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination, CursorPagination 
 from rest_framework.response import Response
 
-from .serializers import (CustomUserSerializer, 
+from rest_framework.decorators import api_view
+
+from .serializers import (
+    CustomUserSerializer, 
     YoutuberSerializer, 
     VideoSerializer, 
     TagSerializer,
-    FeedSerializer)
+    FeedSerializer,
+    UserRegisterSerializer,
+)
 from .models import CustomUser, Youtuber, Video, Tag 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -53,3 +58,18 @@ class FeedView(viewsets.ReadOnlyModelViewSet):
         serializer = FeedSerializer(queryset, many=True)
         return Response(serializer.data)
 
+@api_view(["POST"])
+def createUser(request):
+  serializer = UserRegisterSerializer(data=request.data)
+  data = {}
+  if serializer.is_valid():
+    user = serializer.save()
+    data = {
+      "response": "Successfully registered new user.",
+      "email": user.email,
+      "username": user.username,
+    }
+  else:
+     data = serializer.errors
+  
+  return Response(data)
