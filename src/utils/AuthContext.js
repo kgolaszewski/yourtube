@@ -1,9 +1,9 @@
 import { useState, useEffect, createContext } from 'react';
 import { jwtDecode } from "jwt-decode";
+import BASE_URL from './config'
 
 const AuthContext = createContext()
 
-import { BASE_URL } from './config'
 
 export const AuthProvider = ({children}) => {
 
