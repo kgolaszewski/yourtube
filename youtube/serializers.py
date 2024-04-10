@@ -26,7 +26,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 class YoutuberSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Youtuber 
-        fields = ('username', 'name', 'channel', 'last_upload')
+        fields = ('username', 'display_name', 'channel', 'last_upload')
 
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,6 +38,11 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ('category', 'youtuber')
 
+class UserSubscriptionSerializer(serializers.ModelSerializer):
+   class Meta:
+      model = CustomUser
+      fields = ('id', 'subscriptions')
+
 class FeedSerializer(serializers.BaseSerializer):
     def to_representation(self, instance):
         length_pt1 = f"{instance.length.days+instance.length.seconds//3600 if instance.length.days+instance.length.seconds//3600 else ''}"
@@ -45,7 +50,7 @@ class FeedSerializer(serializers.BaseSerializer):
         length_pt3 = f"{'0' if (instance.length.days+instance.length.seconds//3600 > 0) and ((instance.length.seconds//60)%60 < 10) else ''}"
         length_pt4 = f"{(instance.length.seconds//60)%60}:{instance.length.seconds%60:02}"
         return {
-            'name': instance.youtuber.name,
+            'name': instance.youtuber.display_name,
             'imagename': instance.youtuber.username,
             'channel': instance.youtuber.channel,
             'title': instance.title,

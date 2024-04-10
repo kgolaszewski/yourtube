@@ -72,3 +72,22 @@ h1 {
   background-color: #282c34;
   color: white; 
 }
+
+.profile-picture {
+  height: 75px;
+  width: 75px;
+  border-radius: 50px;
+}
+
+.subscribe-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-subscribe {
+  border-radius: 20px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  min-width: 100px !important;
+}

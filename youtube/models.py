@@ -9,13 +9,15 @@ class CustomUser(AbstractUser):
         return self.username
 
 class Youtuber(models.Model):
-    username    = models.CharField(max_length=128, primary_key=True)
-    name        = models.CharField(max_length=128)
-    channel     = models.CharField(max_length=128)
-    last_upload = models.CharField(max_length=128, null=True)
+    username     = models.CharField(max_length=128, primary_key=True)
+    display_name = models.CharField(max_length=128)
+    channel      = models.CharField(max_length=128)
+    last_upload  = models.CharField(max_length=128, null=True)
+
+    subscribers  = models.ManyToManyField(CustomUser, related_name='subscriptions', related_query_name='subscription')
 
     def __str__(self):
-        return self.name
+        return self.display_name
 
 class Video(models.Model):
     video_id = models.CharField(max_length=128, primary_key=True)

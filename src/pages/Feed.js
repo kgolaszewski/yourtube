@@ -1,11 +1,11 @@
 import BACKEND_URL from '../utils/config'
 import '../css/App.css';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from 'axios';
 
+import AuthContext from '../utils/AuthContext'
+
 const img_folder = process.env.PUBLIC_URL 
-
-
 
 function TagFilter(props) {
   let buttontext = props.text ? props.text : props.tag[0].toUpperCase()+props.tag.slice(1)
@@ -20,6 +20,8 @@ function TagFilter(props) {
 }
 
 function Home() {
+  let { authTokens } = useContext(AuthContext)
+
   useEffect(() => {
     console.log(BACKEND_URL)
   }, [])
@@ -30,7 +32,7 @@ function Home() {
   useEffect(() => {
     if (init === false) {
       axios
-        .get(`${BACKEND_URL}/api/feed/miatime`)
+        .get(`${BACKEND_URL}/api/feed/${category}`)
         .then((res) => { setYoutubers(res.data); console.log("axios", res.data); })
         .then(() => setInit(true))
     }
@@ -70,8 +72,8 @@ function Home() {
       <div className="offset-1 col-10 pb-5">
         {/* <div className="row"> */}
 
-        {youtubers.map(e => (
-          <div className="row mt-2 mb-4">
+        {youtubers.map((e, i) => (
+          <div className="row mt-2 mb-4" key={`youtuber-${i}`}>
 
             <div className="col-2">
               <a className="channelname" href={`${e.channel}`}>{e.name}</a><br />

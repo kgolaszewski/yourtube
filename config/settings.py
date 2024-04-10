@@ -15,7 +15,7 @@ SECRET_KEY = 'django-insecure-w^a&-w_u@)6win*q80((z!0@sw-@^+-6gy!5t0flwji1$=-tti
 DEBUG = True
 
 CORS_ORIGIN_ALLOW_ALL = True
-ALLOWED_HOSTS = ['localhost', 'localhost:8000', 'localhost:8001', 'localhost:3000', 'localhost:3001']
+ALLOWED_HOSTS = ['localhost', 'localhost:8000', 'localhost:8001', 'localhost:3000', 'localhost:3001', 'localhost:3002']
 
 CORS_ORIGIN_WHITELIST = [ 
   'http://localhost:3000', 
@@ -51,6 +51,12 @@ CRONJOBS = [
 ]
 
 AUTH_USER_MODEL = 'youtube.CustomUser'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),

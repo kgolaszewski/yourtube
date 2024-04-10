@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, get_object_or_404
 from django.db.models import F
 
@@ -5,7 +6,8 @@ from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination, CursorPagination 
 from rest_framework.response import Response
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers import (
     CustomUserSerializer, 
@@ -14,6 +16,7 @@ from .serializers import (
     TagSerializer,
     FeedSerializer,
     UserRegisterSerializer,
+    UserSubscriptionSerializer,
 )
 from .models import CustomUser, Youtuber, Video, Tag 
 
@@ -28,6 +31,7 @@ class UserView(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     pagination_class = StandardResultsSetPagination
 
+# @permission_classes([IsAuthenticated])
 class YoutuberView(viewsets.ModelViewSet):
     serializer_class = YoutuberSerializer
     queryset = Youtuber.objects.all()
@@ -45,7 +49,7 @@ class TagView(viewsets.ModelViewSet):
 
 class FeedView(viewsets.ReadOnlyModelViewSet):
     serializer_class = FeedSerializer
-    queryset = Video.objects.filter(video_id=F('youtuber__last_upload')).order_by('-date')
+    queryset = Video.objects.filter(video_id=F('youtuber__last_upload'))
     pagination_class = StandardResultsSetPagination
 
     def list(self, request):
@@ -73,3 +77,41 @@ def createUser(request):
      data = serializer.errors
   
   return Response(data)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_youtube_subscriptions(request):
+    user = request.user
+    serializer = UserSubscriptionSerializer(user)
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def subscribe_to_youtuber(request):
+    user = request.user
+    print("request.data", request.data)
+    youtuber = Youtuber.objects.get(username=request.data["youtuber"])
+    print(youtuber)
+
+    user.subscriptions.add(youtuber)
+    data = {
+        "response": "Success",
+        "user": user.username,
+        "youtuber": youtuber.username,
+    }
+    return Response(data)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def unsubscribe_from_youtuber(request):
+    user = request.user
+    youtuber = Youtuber.objects.get(username=request.data["youtuber"])
+
+    user.subscriptions.remove(youtuber)
+    data = {
+        "response": "Success",
+        "user": user.username,
+        "youtuber": youtuber.username,
+    }
+    return Response(data)
