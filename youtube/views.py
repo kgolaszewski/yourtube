@@ -90,9 +90,7 @@ def get_youtube_subscriptions(request):
 @permission_classes([IsAuthenticated])
 def subscribe_to_youtuber(request):
     user = request.user
-    print("request.data", request.data)
     youtuber = Youtuber.objects.get(username=request.data["youtuber"])
-    print(youtuber)
 
     user.subscriptions.add(youtuber)
     data = {

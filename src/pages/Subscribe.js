@@ -1,7 +1,7 @@
 import BACKEND_URL from '../utils/config'
 import '../css/App.css';
 import { useState, useEffect, useContext } from "react";
-import axios from 'axios';
+import useAxios from '../utils/useAxios'
 
 import AuthContext from '../utils/AuthContext'
 
@@ -9,53 +9,42 @@ const img_folder = process.env.PUBLIC_URL
 
 function Subscribe() {
 
+  const api = useAxios()
+
   let { authTokens } = useContext(AuthContext)
 
   const [youtubers, setYoutubers] = useState([])
   const [subscribed, setSubscribed] = useState([])
 
   const handleSubscribe = (e) => {
-    console.log(e.target.value)
-    console.log({'Authorization': `Bearer ${authTokens?.access}`})
-    axios
+    api
       .post(
         `${BACKEND_URL}/api/subscribe/`, 
         { youtuber: e.target.value, },
-        { headers: { Authorization: `Bearer ${authTokens.access}`, 'Content-Type': 'application/json',} },
       )
-      .then(res => {
-        console.log('success');
-        setSubscribed([...subscribed, e.target.value])
-      })
+      .then(res => { setSubscribed([...subscribed, e.target.value]) })
       .catch(err => console.log(err))
   }
 
   const handleUnsubscribe = (e) => {
-    console.log(e.target.value)
-    console.log({'Authorization': `Bearer ${authTokens?.access}`})
-    axios
+    api
       .post(
         `${BACKEND_URL}/api/unsubscribe/`, 
         { youtuber: e.target.value, },
-        { headers: { Authorization: `Bearer ${authTokens.access}`, 'Content-Type': 'application/json',} },
       )
       .then(res => {
-        console.log('success');
         setSubscribed([...subscribed.filter( elem => elem !== e.target.value)])
       })
       .catch(err => console.log(err))
   }
 
   useEffect(() => {
-    axios
+    api
       .get(`${BACKEND_URL}/api/youtubers`)
       .then((res) => { setYoutubers([...res.data.results]) } )
 
-    axios
-      .get(
-        `${BACKEND_URL}/api/subscribed/`,
-        { headers: { Authorization: `Bearer ${authTokens.access}`, 'Content-Type': 'application/json',} },
-      )
+    api
+      .get(`${BACKEND_URL}/api/subscribed/`)
       .then(res => {
         console.log(res.data.subscriptions)
         setSubscribed(res.data.subscriptions)
