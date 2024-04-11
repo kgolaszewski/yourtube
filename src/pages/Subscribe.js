@@ -28,9 +28,9 @@ function Subscribe() {
 
   const handleUnsubscribe = (e) => {
     api
-      .post(
-        `${BACKEND_URL}/api/unsubscribe/`, 
-        { youtuber: e.target.value, },
+      .delete(
+        `${BACKEND_URL}/api/subscribe/`, 
+        { data: {youtuber: e.target.value}, },
       )
       .then(res => {
         setSubscribed([...subscribed.filter( elem => elem !== e.target.value)])
@@ -44,9 +44,8 @@ function Subscribe() {
       .then((res) => { setYoutubers([...res.data.results]) } )
 
     api
-      .get(`${BACKEND_URL}/api/subscribed/`)
+      .get(`${BACKEND_URL}/api/subscribe/`)
       .then(res => {
-        console.log(res.data.subscriptions)
         setSubscribed(res.data.subscriptions)
       })
   }, [])

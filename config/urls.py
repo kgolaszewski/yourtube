@@ -25,9 +25,6 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path('api/signup/', views.createUser),
-
-    path('api/subscribed/', views.get_youtube_subscriptions),
-    path('api/subscribe/', views.subscribe_to_youtuber),
-    path('api/unsubscribe/', views.unsubscribe_from_youtuber)
+    path('api/subscribe/', views.subscription_view),
 
 ]

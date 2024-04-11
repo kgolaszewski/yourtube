@@ -78,38 +78,28 @@ def createUser(request):
   
   return Response(data)
 
-@api_view(["GET"])
+@api_view(["GET", "POST", "DELETE"])
 @permission_classes([IsAuthenticated])
-def get_youtube_subscriptions(request):
+def subscription_view(request):
     user = request.user
-    serializer = UserSubscriptionSerializer(user)
-    return Response(serializer.data)
 
+    if request.method == "GET":
+        serializer = UserSubscriptionSerializer(user)
+        return Response(serializer.data)
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def subscribe_to_youtuber(request):
-    user = request.user
-    youtuber = Youtuber.objects.get(username=request.data["youtuber"])
+    elif request.method == "POST": 
+        youtuber = Youtuber.objects.get(username=request.data["youtuber"])
+        user.subscriptions.add(youtuber)
+        data = { "response": "Success", "user": user.username, "youtuber": youtuber.username, }
 
-    user.subscriptions.add(youtuber)
-    data = {
-        "response": "Success",
-        "user": user.username,
-        "youtuber": youtuber.username,
-    }
-    return Response(data)
+        return Response(data)
+    
+    elif request.method == "DELETE":
+        print(request.data)
+        youtuber = Youtuber.objects.get(username=request.data["youtuber"])
+        user.subscriptions.remove(youtuber)
+        data = { "response": "Success", "user": user.username, "youtuber": youtuber.username, }
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def unsubscribe_from_youtuber(request):
-    user = request.user
-    youtuber = Youtuber.objects.get(username=request.data["youtuber"])
+        return Response(data)
 
-    user.subscriptions.remove(youtuber)
-    data = {
-        "response": "Success",
-        "user": user.username,
-        "youtuber": youtuber.username,
-    }
-    return Response(data)
+    
