@@ -9,6 +9,8 @@ const Header = () => {
   return (
     <div className="header" id="header">
       <Link to="/">Home</Link>
+      { user && <span> | </span> }
+      { user && <Link to="/subscribe">Subscribe</Link>}
       <span> | </span>
       { user ?
         (<a href="" onClick={(e) => logoutUser()}>Logout</a>) :
