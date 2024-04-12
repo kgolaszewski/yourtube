@@ -36,7 +36,7 @@ class VideoSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ('category', 'youtuber')
+        fields = ('category', 'youtuber', 'user')
 
 class UserSubscriptionSerializer(serializers.ModelSerializer):
    class Meta:
