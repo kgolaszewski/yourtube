@@ -1,7 +1,7 @@
 import BACKEND_URL from '../utils/config'
 import '../css/App.css';
 import { useState, useEffect, useContext } from "react";
-import axios from 'axios';
+import useAxios from '../utils/useAxios'
 
 import AuthContext from '../utils/AuthContext'
 
@@ -20,6 +20,8 @@ function TagFilter(props) {
 }
 
 function Home() {
+  const api = useAxios()
+
   let { authTokens } = useContext(AuthContext)
 
   const [init, setInit] = useState(false)
@@ -28,7 +30,7 @@ function Home() {
 
   useEffect(() => {
     if (init === false) {
-      axios
+      api
         .get(`${BACKEND_URL}/api/feed/${category}`)
         .then((res) => { setYoutubers(res.data) })
         .then(() => setInit(true))
@@ -36,7 +38,7 @@ function Home() {
   }, [init])
 
   useEffect(() => {
-    axios
+    api
         .get(`${BACKEND_URL}/api/feed/${category}`)
         .then((res) => { setYoutubers(res.data) })
   }, [category])

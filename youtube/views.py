@@ -47,13 +47,16 @@ class TagView(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     pagination_class = StandardResultsSetPagination
 
+@permission_classes([IsAuthenticated])
 class FeedView(viewsets.ReadOnlyModelViewSet):
     serializer_class = FeedSerializer
     queryset = Video.objects.filter(video_id=F('youtuber__last_upload'))
     pagination_class = StandardResultsSetPagination
 
     def list(self, request):
-        queryset = Video.objects.filter(video_id=F('youtuber__last_upload')).order_by('-date')
+        user = request.user
+        most_recent_subbed_vid_ids = [ x.last_upload for x in user.subscriptions.all() ]
+        queryset = Video.objects.filter(video_id__in=most_recent_subbed_vid_ids).order_by('-date')
         serializer = FeedSerializer(queryset, many=True)
         return Response(serializer.data)
 
