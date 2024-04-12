@@ -14,6 +14,7 @@ router = routers.DefaultRouter()
 router.register(r'youtubers', views.YoutuberView, 'youtuber')
 router.register(r'videos', views.VideoView, 'video')
 router.register(r'tags', views.TagView, 'tag')
+router.register(r'profile', views.ProfileView, 'profile')
 router.register(r'feed', views.FeedView, 'feed')
 router.register(r'users', views.UserView, 'user')
 
@@ -26,5 +27,6 @@ urlpatterns = [
 
     path('api/signup/', views.createUser),
     path('api/subscribe/', views.subscription_view),
+
 
 ]

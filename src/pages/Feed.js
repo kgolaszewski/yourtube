@@ -26,26 +26,50 @@ function Home() {
 
   const [init, setInit] = useState(false)
   const [youtubers, setYoutubers] = useState()
+  const [feed, setFeed] = useState()
+  const [profile, setProfile] = useState()
   const [category, setCategory] = useState("")
 
-  useEffect(() => {
+  useEffect(async () => {
     if (init === false) {
+      await api
+        .get(`${BACKEND_URL}/api/feed/`)
+        .then((res) => { setYoutubers(res.data); console.log(res.data) })
+      
       api
-        .get(`${BACKEND_URL}/api/feed/${category}`)
-        .then((res) => { setYoutubers(res.data) })
+        .get(`${BACKEND_URL}/api/profile/`)
+        .then((res) => { setProfile(res.data); console.log(res.data) })
         .then(() => setInit(true))
     }
   }, [init])
 
   useEffect(() => {
-    api
-        .get(`${BACKEND_URL}/api/feed/${category}`)
-        .then((res) => { setYoutubers(res.data) })
+    if (init) {
+      console.log("Initialized")
+      if (category) {
+        console.log("category active")
+        console.log(youtubers)
+        console.log([...youtubers.filter(youtuber => profile.feeds[category].includes(youtuber.imagename))])
+        setFeed( [...youtubers.filter(youtuber => profile.feeds[category].includes(youtuber.imagename))] )
+      }
+      else {
+        console.log("hello", youtubers)
+        setFeed([...youtubers])
+      }
+    }
+  }, [youtubers, init])
+
+  useEffect(() => {
+    console.log("hello")
+    // TODO: setFeed(youtubers.filter(youtuber => profile.feeds[category].includes(youtuber)))
+    // api
+    //     .get(`${BACKEND_URL}/api/feed/${category}`)
+    //     .then((res) => { setYoutubers(res.data) })
   }, [category])
 
   return (
     <div>
-    { init && (
+    { init && feed && (
       <div className="App">
         <h1>
           <img id="sitelogo" width="200px" src={`${img_folder}/favicon2.ico`} />
@@ -56,7 +80,7 @@ function Home() {
           <TagFilter tag="" text={"All"}  setCategory={setCategory} />
         </div>
         <div className="offset-1 col-10 pb-5">
-          {youtubers.map((e, i) => (
+          {feed.map((e, i) => (
             <div className="row mt-2 mb-4" key={`youtuber-${i}`}>
 
               <div className="col-2">

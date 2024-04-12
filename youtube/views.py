@@ -17,6 +17,7 @@ from .serializers import (
     FeedSerializer,
     UserRegisterSerializer,
     UserSubscriptionSerializer,
+    ProfileSerializer,
 )
 from .models import CustomUser, Youtuber, Video, Tag 
 
@@ -47,6 +48,12 @@ class TagView(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     pagination_class = StandardResultsSetPagination
 
+class ProfileView(viewsets.ViewSet):
+    def list(self, request):
+        queryset = request.user.tags.all()
+        serializer = ProfileSerializer(queryset)
+        return Response(serializer.data)
+
 @permission_classes([IsAuthenticated])
 class FeedView(viewsets.ReadOnlyModelViewSet):
     serializer_class = FeedSerializer
@@ -60,10 +67,10 @@ class FeedView(viewsets.ReadOnlyModelViewSet):
         serializer = FeedSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    def retrieve(self, request, pk=None):
-        queryset = Video.objects.filter(youtuber__tags__category=pk).filter(video_id=F('youtuber__last_upload')).order_by('-date')
-        serializer = FeedSerializer(queryset, many=True)
-        return Response(serializer.data)
+    # def retrieve(self, request, pk=None):
+    #     queryset = Video.objects.filter(youtuber__tags__category=pk).filter(video_id=F('youtuber__last_upload')).order_by('-date')
+    #     serializer = FeedSerializer(queryset, many=True)
+    #     return Response(serializer.data)
 
 @api_view(["POST"])
 def createUser(request):

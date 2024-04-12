@@ -38,6 +38,22 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ('category', 'youtuber', 'user')
 
+class ProfileSerializer(serializers.BaseSerializer):
+  def to_representation(self, instance):
+      
+      user = instance.first().user
+      categories = [x['category'] for x in user.tags.values('category').distinct()]
+
+      feeds = {
+        category: [tag.youtuber.username for tag in user.tags.filter(category=category)] for category in categories
+      }
+
+      return {
+        "user": user.username,
+        "tags": categories,
+        "feeds": feeds,
+      }
+
 class UserSubscriptionSerializer(serializers.ModelSerializer):
    class Meta:
       model = CustomUser
