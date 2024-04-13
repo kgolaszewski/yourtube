@@ -31,11 +31,23 @@ class Video(models.Model):
 
     def __str__(self):
         return f"{self.title} (@{self.youtuber})"
+    
+class Category(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="categories")
+    tag  = models.CharField(max_length=128)
 
-class Tag(models.Model):
-    category = models.CharField(max_length=128)
-    youtuber = models.ForeignKey(Youtuber, on_delete=models.CASCADE, related_name="tags")
-    user     = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="tags")
+    class Meta:
+        unique_together = [["user", "tag"]]
 
     def __str__(self):
-        return f"@{self.user} {self.youtuber} ({self.category})"
+        return f"{self.tag} (u/{self.user})"
+
+class Tag(models.Model):
+    youtuber = models.ForeignKey(Youtuber, on_delete=models.CASCADE, related_name="tags")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="tags")
+
+    class Meta:
+        unique_together = [["youtuber", "category"]]
+
+    def __str__(self):
+        return f"@{self.youtuber} ({self.category})"

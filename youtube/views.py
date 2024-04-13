@@ -1,4 +1,3 @@
-import json
 from django.shortcuts import render, get_object_or_404
 from django.db.models import F
 
@@ -18,8 +17,15 @@ from .serializers import (
     UserRegisterSerializer,
     UserSubscriptionSerializer,
     ProfileSerializer,
+    CategorySerializer
 )
-from .models import CustomUser, Youtuber, Video, Tag 
+from .models import (
+    CustomUser, 
+    Youtuber, 
+    Video, 
+    Tag, 
+    Category,
+)
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 200
@@ -48,9 +54,15 @@ class TagView(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     pagination_class = StandardResultsSetPagination
 
+class CategoryView(viewsets.ModelViewSet):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+    pagination_class = StandardResultsSetPagination
+
 class ProfileView(viewsets.ViewSet):
     def list(self, request):
-        queryset = request.user.tags.all()
+        categories = [x.tag for x in request.user.categories.all()]
+        queryset = Tag.objects.filter(category__tag__in=categories)
         serializer = ProfileSerializer(queryset, context={'request': request})
         return Response(serializer.data)
 
@@ -111,5 +123,3 @@ def subscription_view(request):
         data = { "response": "Success", "user": user.username, "youtuber": youtuber.username, }
 
         return Response(data)
-
-    

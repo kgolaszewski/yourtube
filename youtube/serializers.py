@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import CustomUser, Youtuber, Video, Tag
+from .models import CustomUser, Youtuber, Video, Tag, Category
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,26 +32,21 @@ class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = ('title', 'video_id', 'length', 'date', 'youtuber')
-        
-class TagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tag
-        fields = ('category', 'youtuber', 'user')
 
 class ProfileSerializer(serializers.BaseSerializer):
   def to_representation(self, instance):
       
-      # user = instance.first().user
       user = self.context['request'].user
-      categories = [x['category'] for x in user.tags.values('category').distinct()]
+      tag_names = [x.tag for x in user.categories.all()]
+      tags = Tag.objects.filter(category__user__username=user.username)
 
       feeds = {
-        category: [tag.youtuber.username for tag in user.tags.filter(category=category)] for category in categories
+        tag_name: [tag.youtuber.username for tag in tags.filter(category__tag=tag_name)] for tag_name in tag_names
       }
 
       return {
         "user": user.username,
-        "tags": categories,
+        "tags": tag_names,
         "feeds": feeds,
       }
 
@@ -105,3 +100,13 @@ class UserRegisterSerializer(ModelSerializer):
     user.save()
 
     return user
+  
+class CategorySerializer(ModelSerializer):
+   class Meta:
+      model = Category
+      fields = '__all__' 
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('category', 'youtuber')
