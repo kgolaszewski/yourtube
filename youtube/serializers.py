@@ -41,7 +41,8 @@ class TagSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.BaseSerializer):
   def to_representation(self, instance):
       
-      user = instance.first().user
+      # user = instance.first().user
+      user = self.context['request'].user
       categories = [x['category'] for x in user.tags.values('category').distinct()]
 
       feeds = {

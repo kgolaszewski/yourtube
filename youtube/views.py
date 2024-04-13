@@ -51,7 +51,7 @@ class TagView(viewsets.ModelViewSet):
 class ProfileView(viewsets.ViewSet):
     def list(self, request):
         queryset = request.user.tags.all()
-        serializer = ProfileSerializer(queryset)
+        serializer = ProfileSerializer(queryset, context={'request': request})
         return Response(serializer.data)
 
 @permission_classes([IsAuthenticated])

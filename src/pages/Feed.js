@@ -73,7 +73,7 @@ function Home() {
       <div className="App">
         <h1>
           <img id="sitelogo" width="200px" src={`${img_folder}/favicon2.ico`} />
-          WeTube
+          YourTube
         </h1>
         <hr className="mb-5" />
         <div className="offset-1 col-10 buttonrow mb-5">
