@@ -34,11 +34,15 @@ function Home() {
     if (init === false) {
       await api
         .get(`${BACKEND_URL}/api/feed/`)
-        .then((res) => { setYoutubers(res.data); console.log(res.data) })
+        .then((res) => { 
+          setYoutubers(res.data)
+        })
       
       api
         .get(`${BACKEND_URL}/api/profile/`)
-        .then((res) => { setProfile(res.data); console.log(res.data) })
+        .then((res) => { 
+          setProfile(res.data); 
+        })
         .then(() => setInit(true))
     }
   }, [init])
@@ -53,18 +57,20 @@ function Home() {
         setFeed( [...youtubers.filter(youtuber => profile.feeds[category].includes(youtuber.imagename))] )
       }
       else {
-        console.log("hello", youtubers)
         setFeed([...youtubers])
       }
     }
   }, [youtubers, init])
 
   useEffect(() => {
-    console.log("hello")
-    // TODO: setFeed(youtubers.filter(youtuber => profile.feeds[category].includes(youtuber)))
-    // api
-    //     .get(`${BACKEND_URL}/api/feed/${category}`)
-    //     .then((res) => { setYoutubers(res.data) })
+    if (youtubers) {
+      if (category === "") {
+        setFeed([...youtubers])
+      }
+      else {
+        setFeed(youtubers.filter(youtuber => profile.feeds[category].includes(youtuber.imagename)))
+      }
+    }
   }, [category])
 
   return (
@@ -78,6 +84,11 @@ function Home() {
         <hr className="mb-5" />
         <div className="offset-1 col-10 buttonrow mb-5">
           <TagFilter tag="" text={"All"}  setCategory={setCategory} />
+          {
+            profile.tags.map(tag => (
+              <TagFilter key={tag} tag={tag} text={tag}  setCategory={setCategory} />
+            ))
+          }
         </div>
         <div className="offset-1 col-10 pb-5">
           {feed.map((e, i) => (
