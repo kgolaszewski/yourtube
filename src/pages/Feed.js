@@ -131,8 +131,14 @@ function Home() {
   }
 
   const handleEditing = (category) => {
-    setIsEditOpen(true)
-    setSelectedCategory(category)
+    if (isEditOpen) {
+      setIsEditOpen(false)
+      setSelectedCategory("")
+    }
+    else {
+      setIsEditOpen(true)
+      setSelectedCategory(category)
+    }
   }
 
   const onClickMethod = {
