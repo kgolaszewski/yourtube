@@ -123,7 +123,7 @@ function Home() {
         setCategories([
           ...categories.filter(e => e.id !== category.id),
           category
-        ].toSorted((a,b) => a-b))
+        ].toSorted((a,b) => a.id-b.id))
         setIsEditOpen(false)
         setSelectedCategory("")
       })
@@ -166,7 +166,7 @@ function Home() {
             ))
           }
           <button
-            className={`btn ml-3 ${mode === "create" ? "btn-success" : "btn-outline-success" }`}
+            className={`btn ms-3 ${mode === "create" ? "btn-success" : "btn-outline-success" }`}
             onClick={() => {
               setMode(mode === "create" ? "" : "create")
               setIsNewOpen(!isNewOpen)
@@ -177,7 +177,7 @@ function Home() {
             +
           </button>
           <button
-            className={`btn ml-3 ${mode === "delete" ? "btn-danger" : "btn-outline-danger" }`}
+            className={`btn ms-3 ${mode === "delete" ? "btn-danger" : "btn-outline-danger" }`}
             onClick={() => {
               setMode(mode === "delete" ? "" : "delete")
               setIsNewOpen(false)
@@ -188,7 +188,7 @@ function Home() {
             X
           </button>
           <button
-            className={`btn ml-3 ${mode === "edit" ? "btn-warning" : "btn-outline-warning" }`}
+            className={`btn ms-3 ${mode === "edit" ? "btn-warning" : "btn-outline-warning" }`}
             onClick={() => {
               setMode(mode === "edit" ? "" : "edit")
               setIsNewOpen(false)

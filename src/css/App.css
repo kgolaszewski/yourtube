@@ -19,6 +19,7 @@ html {
 
 a {
   color: white !important;
+  text-decoration: none !important;
 }
 a:hover {
   opacity: 0.5;
@@ -100,4 +101,8 @@ h1 {
   font-size: 12px !important;
   font-weight: 700 !important;
   min-width: 100px !important;
+}
+
+.btn-dark {
+  background-color: #343A40!important;
 }
