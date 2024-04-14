@@ -5,16 +5,34 @@ import useAxios from '../utils/useAxios'
 
 import AuthContext from '../utils/AuthContext'
 
+import { Collapse } from 'reactstrap'
+
 const img_folder = process.env.PUBLIC_URL 
 
 function TagFilter(props) {
-  let buttontext = props.text ? props.text : props.tag[0].toUpperCase()+props.tag.slice(1)
+  const buttonType = {
+    "":       "btn-dark",
+    "create": "btn-dark",
+    "delete": "btn-outline-danger",
+    "edit":   "btn-outline-warning",
+  }
   return (
     <button 
-          className="btn btn-dark btn-tag"
-          onClick={() => props.setCategory(props.tag)}
+          className={`btn btn-tag ${buttonType[props.mode]}`}
+          onClick={() => { 
+            if (props.mode === "delete") { 
+              props.handleTagClick(props.category_id) 
+            }
+            else if (props.mode === "edit") {
+              props.handleTagClick(props.category)
+            }
+            else {
+              props.handleTagClick(props.tag)
+            }
+            // props.mode !== "delete" ? props.tag : props.category_id) 
+          }}
         >
-          {buttontext}
+          {props.text}
         </button>
   )
 }
@@ -22,13 +40,24 @@ function TagFilter(props) {
 function Home() {
   const api = useAxios()
 
-  let { authTokens } = useContext(AuthContext)
+  let { user } = useContext(AuthContext)
 
   const [init, setInit] = useState(false)
+
   const [youtubers, setYoutubers] = useState()
+  const [feeds, setFeeds] = useState()
+  const [categories, setCategories] = useState()
+
   const [feed, setFeed] = useState()
-  const [profile, setProfile] = useState()
-  const [category, setCategory] = useState("")
+  const [activeCategory, setActiveCategory] = useState("")
+
+  const [newCategory, setNewCategory] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("")
+
+  const [mode, setMode] = useState("")
+
+  const [isNewOpen,  setIsNewOpen]  = useState(false) 
+  const [isEditOpen, setIsEditOpen] = useState(false) 
 
   useEffect(async () => {
     if (init === false) {
@@ -41,37 +70,76 @@ function Home() {
       api
         .get(`${BACKEND_URL}/api/profile/`)
         .then((res) => { 
-          setProfile(res.data); 
+          setFeeds(res.data.feeds)
+          setCategories(res.data.categories)
         })
         .then(() => setInit(true))
     }
   }, [init])
 
   useEffect(() => {
-    if (init) {
-      console.log("Initialized")
-      if (category) {
-        console.log("category active")
-        console.log(youtubers)
-        console.log([...youtubers.filter(youtuber => profile.feeds[category].includes(youtuber.imagename))])
-        setFeed( [...youtubers.filter(youtuber => profile.feeds[category].includes(youtuber.imagename))] )
+    if (init && youtubers) {
+      if (activeCategory !== "") {
+        setFeed( [...youtubers.filter(youtuber => feeds[activeCategory].includes(youtuber.imagename))] )
       }
       else {
         setFeed([...youtubers])
       }
     }
-  }, [youtubers, init])
+  }, [youtubers, init, activeCategory])
 
-  useEffect(() => {
-    if (youtubers) {
-      if (category === "") {
-        setFeed([...youtubers])
-      }
-      else {
-        setFeed(youtubers.filter(youtuber => profile.feeds[category].includes(youtuber.imagename)))
-      }
+  const handleTagSubmit = (tag) => {
+    if (tag) {
+      api
+        .post(
+          `${BACKEND_URL}/api/categories/`,
+          { tag: tag, user: user.user_id, }
+        )
+        .then(res => {
+          setCategories([...categories, res.data])
+          setNewCategory("")
+        })
     }
-  }, [category])
+  }
+
+  const handleTagDelete = (id) => {
+    api
+      .delete(
+        `${BACKEND_URL}/api/categories/${id}/`
+      )
+      .then(res => {
+        setCategories( categories.filter(category => category.id !== id) )}
+      )
+  }
+
+  const handleTagEdit = (category) => {
+    console.log("hello")
+    api
+      .put(
+        `${BACKEND_URL}/api/categories/${category.id}/`,
+        category
+      )
+      .then(res => {
+        setCategories([
+          ...categories.filter(e => e.id !== category.id),
+          category
+        ].toSorted((a,b) => a-b))
+        setIsEditOpen(false)
+        setSelectedCategory("")
+      })
+
+  }
+
+  const handleEditing = (category) => {
+    setIsEditOpen(true)
+    setSelectedCategory(category)
+  }
+
+  const onClickMethod = {
+    "": setActiveCategory,
+    "delete": handleTagDelete,
+    "edit": handleEditing,
+  }
 
   return (
     <div>
@@ -83,13 +151,82 @@ function Home() {
         </h1>
         <hr className="mb-5" />
         <div className="offset-1 col-10 buttonrow mb-5">
-          <TagFilter tag="" text={"All"}  setCategory={setCategory} />
+          <TagFilter tag="" key="" text="All" mode="" handleTagClick={setActiveCategory} />
           {
-            profile.tags.map(tag => (
-              <TagFilter key={tag} tag={tag} text={tag}  setCategory={setCategory} />
+            categories.map(elem => (
+              <TagFilter 
+                key={elem.id} 
+                tag={elem.tag} 
+                text={elem.tag}
+                mode={mode}
+                category_id={elem.id}
+                category={elem}
+                handleTagClick={onClickMethod[mode]}
+              />
             ))
           }
+          <button
+            className={`btn ml-3 ${mode === "create" ? "btn-success" : "btn-outline-success" }`}
+            onClick={() => {
+              setMode(mode === "create" ? "" : "create")
+              setIsNewOpen(!isNewOpen)
+              setIsEditOpen(false)
+            }}
+            // type="button" data-toggle="collapse" data-target="#new-tag-form"
+          >
+            +
+          </button>
+          <button
+            className={`btn ml-3 ${mode === "delete" ? "btn-danger" : "btn-outline-danger" }`}
+            onClick={() => {
+              setMode(mode === "delete" ? "" : "delete")
+              setIsNewOpen(false)
+              setIsEditOpen(false)
+              setNewCategory("")
+            }}
+          >
+            X
+          </button>
+          <button
+            className={`btn ml-3 ${mode === "edit" ? "btn-warning" : "btn-outline-warning" }`}
+            onClick={() => {
+              setMode(mode === "edit" ? "" : "edit")
+              setIsNewOpen(false)
+              setIsEditOpen(false)
+              setNewCategory("")
+            }}
+          >
+            ?
+          </button>
         </div>
+
+        <Collapse isOpen={isNewOpen}>
+          <input
+            id="newCategory" type="text" name="newCategory" value={newCategory} 
+            placeholder="New tag name"
+            onChange={ (e) => setNewCategory(e.target.value) } 
+          />
+          <button 
+            className="btn-primary"
+            onClick={() => { handleTagSubmit(newCategory) }}
+          > 
+            + 
+          </button>
+        </Collapse>
+
+        <Collapse isOpen={isEditOpen}>
+          <input
+            id="newCategory" type="text" name="newCategory" value={selectedCategory.tag} 
+            onChange={ (e) => setSelectedCategory({...selectedCategory, "tag": e.target.value}) } 
+          />
+          <button 
+            className="btn-primary"
+            onClick={() => { handleTagEdit(selectedCategory) }}
+          > 
+            + 
+          </button>
+        </Collapse>
+
         <div className="offset-1 col-10 pb-5">
           {feed.map((e, i) => (
             <div className="row mt-2 mb-4" key={`youtuber-${i}`}>

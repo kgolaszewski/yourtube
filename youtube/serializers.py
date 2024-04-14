@@ -38,6 +38,11 @@ class ProfileSerializer(serializers.BaseSerializer):
       
       user = self.context['request'].user
       tag_names = [x.tag for x in user.categories.all()]
+
+      categories = sorted([
+         {"id": category.id, "tag": category.tag, "user": user.id} for category in user.categories.all()
+      ], key=lambda category: category["id"])
+
       tags = Tag.objects.filter(category__user__username=user.username)
 
       feeds = {
@@ -46,7 +51,7 @@ class ProfileSerializer(serializers.BaseSerializer):
 
       return {
         "user": user.username,
-        "tags": tag_names,
+        "categories": categories,
         "feeds": feeds,
       }
 
