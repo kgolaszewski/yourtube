@@ -42,7 +42,7 @@ function Login() {
         <div className="offset-4 col-4">
           <form onSubmit={(e) => loginUser(e)}>
             <div>
-              <label className="col-4" htmlFor="username">Username</label>
+              <label className="col-4 mb-2" htmlFor="username">Username</label>
               <input 
                 id="username"
                 type="text"

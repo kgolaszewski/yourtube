@@ -107,7 +107,7 @@ const handleSubmit = async (e) => {
         <div className="offset-4 col-4">
         <form onSubmit={(e) => handleSubmit(e)}>
           <div>
-            <label className="col-4" htmlFor="username">Username</label>
+            <label className="col-4 mb-2" htmlFor="username">Username</label>
             <input 
               id="username"
               type="text"
@@ -117,7 +117,7 @@ const handleSubmit = async (e) => {
             />
           </div>
           <div>
-            <label className="col-4" htmlFor="username">Email</label>
+            <label className="col-4 mb-2" htmlFor="username">Email</label>
             <input 
               id="email" 
               type="text"
@@ -127,7 +127,7 @@ const handleSubmit = async (e) => {
             />
           </div>
           <div>
-            <label className="col-4" htmlFor="password">Password</label>
+            <label className="col-4 mb-2" htmlFor="password">Password</label>
             <input 
               id="password" 
               type="password" 
