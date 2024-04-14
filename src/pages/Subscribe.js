@@ -60,7 +60,9 @@ function Subscribe() {
             <div>
            {
             youtubers.map((youtuber, i) => (
-              <div key={`key-${i}`} className="offset-4 col-4 row mb-3 subscribe-row">
+              <div key={`key-${i}`} 
+                className="mb-3 subscribe-row"
+              >
                   <img className="profile-picture" src={`${img_folder}/profiles/${youtuber.username}.jpg`} />
                   <div>{youtuber.display_name}</div>
                   {

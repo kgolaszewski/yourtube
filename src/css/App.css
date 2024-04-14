@@ -85,15 +85,24 @@ h1 {
 }
 
 .profile-picture {
-  height: 75px;
-  width: 75px;
+  height: 75px !important;
+  width: 75px !important;
+  padding: 0 0 0 0 !important;
   border-radius: 50px;
 }
 
 .subscribe-row {
-  display: flex;
+  /* display: flex;
   align-items: center;
+  justify-content: space-between; */
+
+  display: flex; 
   justify-content: space-between;
+  align-items: center;
+
+  margin-left: 35%;
+  margin-right: 35%;
+  width: 30%; 
 }
 
 .btn-subscribe {
