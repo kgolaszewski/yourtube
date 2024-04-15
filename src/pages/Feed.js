@@ -92,7 +92,7 @@ function Home() {
   useEffect(() => {
     if (init && youtubers) {
       if (activeCategory !== "") {
-        setFeed( [...youtubers.filter(youtuber => feeds[activeCategory].includes(youtuber.imagename))] )
+        setFeed( [...youtubers.filter(youtuber => Object.keys(feeds[activeCategory]).includes(youtuber.imagename))] )
       }
       else {
         setFeed([...youtubers])
@@ -112,7 +112,7 @@ function Home() {
           setNewCategory("")
           setFeeds({
             ...feeds,
-            [tag]: [],
+            [tag]: {},
           })
         })
     }
@@ -174,16 +174,33 @@ function Home() {
       .then(res => {
         setFeedsMethod({
           ...feeds,
-          [data.category.tag]: [
+          [data.category.tag]: {
             ...feeds[data.category.tag],
-            res.data.youtuber
-          ]
+            [res.data.youtuber]: res.data.id
+          }
         })
       })
   }
-
-  const handleUntaggingYoutuber = (data) => {
-
+  
+  const handleUntag = (id, youtuber, category) => {
+    api
+      .delete(
+        `${BACKEND_URL}/api/tags/${id}/`
+      )
+      .then(res => {
+        // this disaster/code is a non-mutating alternative to: 
+        // `delete feeds[category][youtuber]`
+        setFeeds({
+          ...feeds,
+          [category]: Object.keys(feeds[category])
+            .filter(e => e !== youtuber)
+            .reduce((tot, key) => { 
+              tot[key] = feeds[category][key]; 
+              return tot; 
+            }, {})
+        })
+        setFeed([...feed.filter(e => e.imagename !== youtuber)])
+      })
   }
 
   return (
@@ -292,7 +309,7 @@ function Home() {
                     onClick={() => {
                       toggle();
                       setSelectedYoutuber(e.imagename)
-                      setOptions([...categories.filter(category => !feeds[category.tag].includes(e.imagename))])
+                      setOptions([...categories.filter(category => !Object.keys(feeds[category.tag]).includes(e.imagename))])
                     }}
                   >
                     +
@@ -302,6 +319,11 @@ function Home() {
                   <button 
                     className="btn btn-outline-secondary btn-sm add-tag"
                     onClick={() => {
+                      handleUntag(
+                        feeds[activeCategory][e.imagename],
+                        e.imagename,
+                        activeCategory
+                      )
                       // setSelectedYoutuber(e.imagename)
                       // setOptions([...categories.filter(category => !feeds[category.tag].includes(e.imagename))])
                     }}

@@ -46,7 +46,7 @@ class ProfileSerializer(serializers.BaseSerializer):
       tags = Tag.objects.filter(category__user__username=user.username)
 
       feeds = {
-        tag_name: [tag.youtuber.username for tag in tags.filter(category__tag=tag_name)] for tag_name in tag_names
+        tag_name: {tag.youtuber.username: tag.id for tag in tags.filter(category__tag=tag_name)} for tag_name in tag_names
       }
 
       return {
