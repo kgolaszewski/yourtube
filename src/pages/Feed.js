@@ -58,7 +58,7 @@ function Home() {
   const [activeCategory, setActiveCategory] = useState("")
 
   const [newCategory, setNewCategory] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState({tag: ""})
 
   const [mode, setMode] = useState("")
 
@@ -110,6 +110,8 @@ function Home() {
         .then(res => {
           setCategories([...categories, res.data])
           setNewCategory("")
+          setIsNewOpen(false)
+          setMode("")
           setFeeds({
             ...feeds,
             [tag]: {},
@@ -140,15 +142,21 @@ function Home() {
           category
         ].toSorted((a,b) => a.id-b.id))
         setIsEditOpen(false)
-        setSelectedCategory("")
+        setMode("")
+        setSelectedCategory({tag: ""})
       })
 
   }
 
   const handleEditing = (category) => {
     if (isEditOpen) {
-      setIsEditOpen(false)
-      setSelectedCategory("")
+      if (category === selectedCategory) { 
+        setSelectedCategory({tag: ""})
+        setIsEditOpen(false) 
+      }
+      else {
+        setSelectedCategory(category)
+      }
     }
     else {
       setIsEditOpen(true)
@@ -273,30 +281,47 @@ function Home() {
         </div>
 
         <Collapse isOpen={isNewOpen}>
-          <input
-            id="newCategory" type="text" name="newCategory" value={newCategory} 
-            placeholder="New tag name"
-            onChange={ (e) => setNewCategory(e.target.value) } 
-          />
-          <button 
-            className="btn-primary"
-            onClick={() => { handleTagSubmit(newCategory) }}
-          > 
-            + 
-          </button>
+          <form>
+            <input
+              id="newCategory" 
+              name="newCategory" value={newCategory} 
+              type="text" 
+              placeholder="New tag name"
+              onChange={ (e) => setNewCategory(e.target.value) } 
+            />
+            <button 
+              className="btn-primary"
+              type="submit"
+              onClick={(e) => { 
+                e.preventDefault()
+                handleTagSubmit(newCategory) 
+              }}
+            > 
+              + 
+            </button>
+          </form>
         </Collapse>
 
         <Collapse isOpen={isEditOpen}>
+          <form>
           <input
-            id="newCategory" type="text" name="newCategory" value={selectedCategory.tag} 
+            id="newCategory" 
+            name="newCategory" 
+            type="text" 
+            value={selectedCategory.tag} 
             onChange={ (e) => setSelectedCategory({...selectedCategory, "tag": e.target.value}) } 
           />
           <button 
             className="btn-primary"
-            onClick={() => { handleTagEdit(selectedCategory) }}
+            type="submit"
+            onClick={(e) => { 
+              e.preventDefault()
+              handleTagEdit(selectedCategory) 
+            }}
           > 
             + 
           </button>
+          </form>
         </Collapse>
 
         <div className="offset-1 col-10 pb-5">
