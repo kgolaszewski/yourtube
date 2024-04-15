@@ -179,6 +179,13 @@ function Home() {
             [res.data.youtuber]: res.data.id
           }
         })
+        console.log(res.data, {
+          ...feeds,
+          [data.category.tag]: {
+            ...feeds[data.category.tag],
+            [res.data.youtuber]: res.data.id
+          }
+        })
       })
   }
   
