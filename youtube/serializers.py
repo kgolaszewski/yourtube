@@ -112,6 +112,10 @@ class CategorySerializer(ModelSerializer):
       fields = '__all__' 
 
 class TagSerializer(serializers.ModelSerializer):
+    # category_tag = serializers.CharField(source='category.tag')
     class Meta:
         model = Tag
-        fields = ('category', 'youtuber')
+        fields = (
+          'category', 
+          'youtuber', 
+        )

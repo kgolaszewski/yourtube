@@ -1,13 +1,66 @@
-import BACKEND_URL from '../utils/config'
 import '../css/App.css';
-import { useState, useEffect, useContext } from "react";
+import BACKEND_URL from '../utils/config'
 import useAxios from '../utils/useAxios'
-
 import AuthContext from '../utils/AuthContext'
 
-import { Collapse } from 'reactstrap'
+import { useState, useEffect, useContext } from "react";
+import { 
+  Button, 
+  Modal, 
+  ModalBody,
+  ModalHeader,
+  ModalFooter,
+  Collapse, 
+} from 'reactstrap'
 
 const img_folder = process.env.PUBLIC_URL 
+
+function CustomModal(props) {
+
+  const [selected, setSelected] = useState("")
+  let onSave = props.submitmethod
+
+  return (
+    <div>
+      <Modal isOpen={props.modal === "true"} toggle={props.toggle}>
+        <ModalHeader
+          toggle={props.toggle}
+        >
+          Add a Tag for @{props.youtuber}
+        </ModalHeader>
+        <ModalBody>
+          <p>Select one of your existing video categories and click Submit to add this Youtuber to that feed.</p>
+          <select onChange={(e) => {
+            setSelected(e.target.value)
+          }}>
+            {
+              props.options.map(category => 
+                <option key={category.tag} value={category.id}>{category.tag}</option>
+              )
+            }
+          </select>
+        </ModalBody>
+
+        <ModalFooter>
+          <Button color="primary" 
+            onClick={() => {
+              onSave({
+                category: props.options.filter(e => e.id === +(selected))[0],
+                youtuber: props.youtuber,
+              }, props.setFeeds)
+              props.toggle()
+            }}
+          >
+            Submit
+          </Button>
+          <Button color="secondary" onClick={props.toggle}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </div>
+  )
+}
 
 function TagFilter(props) {
   const buttonType = {
@@ -29,7 +82,6 @@ function TagFilter(props) {
             else {
               props.handleTagClick(props.tag)
             }
-            // props.mode !== "delete" ? props.tag : props.category_id) 
           }}
         >
           {props.text}
@@ -58,6 +110,12 @@ function Home() {
 
   const [isNewOpen,  setIsNewOpen]  = useState(false) 
   const [isEditOpen, setIsEditOpen] = useState(false) 
+
+  const [modal, setModal] = useState(false)
+  const toggle = () => setModal(!modal)
+
+  const [selectedYoutuber, setSelectedYoutuber] = useState("")
+  const [options, setOptions] = useState([])
 
   useEffect(async () => {
     if (init === false) {
@@ -98,6 +156,10 @@ function Home() {
         .then(res => {
           setCategories([...categories, res.data])
           setNewCategory("")
+          setFeeds({
+            ...feeds,
+            [tag]: [],
+          })
         })
     }
   }
@@ -113,7 +175,6 @@ function Home() {
   }
 
   const handleTagEdit = (category) => {
-    console.log("hello")
     api
       .put(
         `${BACKEND_URL}/api/categories/${category.id}/`,
@@ -147,6 +208,26 @@ function Home() {
     "edit": handleEditing,
   }
 
+  const handleTaggingYoutuber = (data, setFeedsMethod) => {
+    api
+      .post(
+        `${BACKEND_URL}/api/tags/`,
+        {
+          category: data.category.id,
+          youtuber: data.youtuber,
+        }
+      )
+      .then(res => {
+        setFeedsMethod({
+          ...feeds,
+          [data.category.tag]: [
+            ...feeds[data.category.tag],
+            res.data.youtuber
+          ]
+        })
+      })
+  }
+
   return (
     <div>
     { init && feed && (
@@ -178,7 +259,6 @@ function Home() {
               setIsNewOpen(!isNewOpen)
               setIsEditOpen(false)
             }}
-            // type="button" data-toggle="collapse" data-target="#new-tag-form"
           >
             +
           </button>
@@ -237,6 +317,23 @@ function Home() {
           {feed.map((e, i) => (
             <div className="row mt-2 mb-4" key={`youtuber-${i}`}>
 
+              <div style={{
+                maxWidth: "50px", 
+                display: "flex", 
+                alignItems: "center",
+              }}>
+                <button 
+                  className="btn btn-outline-secondary btn-sm add-tag"
+                  onClick={() => {
+                    toggle();
+                    setSelectedYoutuber(e.imagename)
+                    setOptions([...categories.filter(category => !feeds[category.tag].includes(e.imagename))])
+                  }}
+                >
+                  +
+                </button>
+              </div>
+
               <div className="col-2">
                 <a className="channelname" href={`${e.channel}`}>{e.name}</a><br />
                 <a href={`${e.channel}`}>
@@ -257,7 +354,7 @@ function Home() {
               </a>
               </div>
 
-              <div className="col-6 mt-4 leftalign">
+              <div className="col-5 mt-4 leftalign">
                 <a href={`${e.url}`} className="videotitle">
                   {e.title}
                 </a>
@@ -271,6 +368,19 @@ function Home() {
           ))}
           </div>
         </div>
+      )
+    }
+    {
+      modal && (
+        <CustomModal
+          toggle={toggle}
+          modal={`${modal}`}
+          youtuber={selectedYoutuber}
+          feeds={feeds}
+          options={options}
+          submitmethod={handleTaggingYoutuber}
+          setFeeds={setFeeds}
+        />
       )
     }
     </div>

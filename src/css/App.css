@@ -115,3 +115,9 @@ h1 {
 .btn-dark {
   background-color: #343A40!important;
 }
+
+.add-tag {
+  border-radius: 25px !important;
+  min-width: 30px;
+  min-height: 30px;
+}
