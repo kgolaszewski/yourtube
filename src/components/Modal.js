@@ -10,7 +10,7 @@ import { useState } from "react";
 
 function CustomModal(props) {
 
-  const [selected, setSelected] = useState("")
+  const [selected, setSelected] = useState(null)
   let onSave = props.submitmethod
 
   return (
@@ -26,6 +26,7 @@ function CustomModal(props) {
           <select onChange={(e) => {
             setSelected(e.target.value)
           }}>
+            <option disabled selected value>Please select a category</option>
             {
               props.options.map(category => 
                 <option key={category.tag} value={category.id}>{category.tag}</option>
@@ -36,6 +37,7 @@ function CustomModal(props) {
 
         <ModalFooter>
           <Button color="primary" 
+            disabled={ selected ? false : true }
             onClick={() => {
               onSave({
                 category: props.options.filter(e => e.id === +(selected))[0],
