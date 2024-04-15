@@ -121,3 +121,7 @@ h1 {
   min-width: 30px;
   min-height: 30px;
 }
+
+.special {
+  background-color: steelblue !important;
+}
